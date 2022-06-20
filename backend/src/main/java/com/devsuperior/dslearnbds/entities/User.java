@@ -1,16 +1,18 @@
 package com.devsuperior.dslearnbds.entities;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "tb_user")
-public class User implements Serializable {
+public class User implements UserDetails, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -104,4 +106,42 @@ public class User implements Serializable {
             return false;
         return true;
     }
+
+    // Métodos implementados a partir da interface UserDetails
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        //Estamos convertendo todas as Roles para SimpleGrantedAuthority
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getAuthority()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        // como não utilizaremos esse método, vamos retornar true
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        // como não utilizaremos esse método, vamos retornar true
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        // como não utilizaremos esse método, vamos retornar true
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // como não utilizaremos esse método, vamos retornar true
+        return true;
+    }
+
 }
