@@ -1,7 +1,9 @@
 package com.devsuperior.dslearnbds.services;
 
+import com.devsuperior.dslearnbds.dto.UserDTO;
 import com.devsuperior.dslearnbds.entities.User;
 import com.devsuperior.dslearnbds.repositories.UserRepository;
+import com.devsuperior.dslearnbds.services.exceptions.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -17,6 +22,13 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository repository;
+
+    @Transactional(readOnly = true) // Se der algum problema, td será desfeito. importante colocar o read only true para otimizar a consulta
+    public UserDTO findById(Long id) {
+        Optional<User> obj = repository.findById(id);
+        User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found")); // se tiver um erro na consulta, o objeto não existir, a msg será enviada
+        return new UserDTO(entity);
+    }
 
     //Método da interface UserDetailService que busca o usuario por email
     @Override
