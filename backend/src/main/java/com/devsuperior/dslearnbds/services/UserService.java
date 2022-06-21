@@ -23,8 +23,13 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository repository;
 
-    @Transactional(readOnly = true) // Se der algum problema, td será desfeito. importante colocar o read only true para otimizar a consulta
+    @Autowired
+    private AuthService authService;
+
+    // metodo responsavel por buscar o usuario
+    @Transactional(readOnly = true)
     public UserDTO findById(Long id) {
+        authService.validateSelfOrAdmin(id);
         Optional<User> obj = repository.findById(id);
         User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found")); // se tiver um erro na consulta, o objeto não existir, a msg será enviada
         return new UserDTO(entity);
